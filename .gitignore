@@ -22,3 +22,6 @@ api_test.py
 # Pytest
 .pytest_cache/
 
+# Notebooks
+.ipynb_checkpoints/
+notebooks/*.ipynb
