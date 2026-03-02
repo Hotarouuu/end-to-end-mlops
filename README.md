@@ -180,12 +180,7 @@ The development lifecycle is divided into clear stages as follows:
    mv .env-example .env
    ```
 
-3. Build containers:
-   ```bash
-   docker compose up --build
-   ```
-
-4. Access the API documentation:
+3. Access the API documentation:
    Visit [http://localhost:8000/docs](http://localhost:8000/docs) where you can test the endpoints.
 
 ---
