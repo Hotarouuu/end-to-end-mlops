@@ -1,0 +1,11 @@
+.dvc
+.dvcignore
+.env-example
+.github/
+.gitignore
+.pytest_cache/
+.venv
+AI_reports/
+__pycache__/
+.env
+
