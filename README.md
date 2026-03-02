@@ -175,9 +175,9 @@ The development lifecycle is divided into clear stages as follows:
    cd end-to-end-mlops
    ```
 
-2. Update the name of the .env file:
+2. Build containers:
    ```bash
-   mv .env-example .env
+   docker compose up --build
    ```
 
 3. Access the API documentation:
