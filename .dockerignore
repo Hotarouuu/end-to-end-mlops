@@ -1,5 +1,3 @@
-.dvc
-.dvcignore
 .env-example
 .github/
 .gitignore
