@@ -2,8 +2,6 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 import pandas as pd
 import numpy as np
 import joblib
-from pathlib import Path
-
 
 class Preprocessor:
     def __init__(self, joblib_file=None):
