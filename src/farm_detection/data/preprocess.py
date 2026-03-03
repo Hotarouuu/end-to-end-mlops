@@ -1,12 +1,24 @@
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 import pandas as pd
 import numpy as np
+import joblib
+from pathlib import Path
 
 
 class Preprocessor:
-    def __init__(self):
-        self.scaler = StandardScaler()
-        self.label_encoder = LabelEncoder()
+    def __init__(self, scaler_path=None, encoder_path=None):
+        self.scaler_path = scaler_path
+        self.encoder_path = encoder_path
+        
+        if scaler_path and Path(scaler_path).exists():
+            self.scaler = joblib.load(scaler_path)
+        else:
+            self.scaler = StandardScaler()
+            
+        if encoder_path and Path(encoder_path).exists():
+            self.label_encoder = joblib.load(encoder_path)
+        else:
+            self.label_encoder = LabelEncoder()
 
     def log_transform(self, X):
         X["humidity_log"] = np.log(X["humidity"] + 1)
