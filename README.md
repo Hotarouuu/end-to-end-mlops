@@ -106,6 +106,9 @@ end-to-end-mlops/
 ├── model/
 │   └── Trained models, saved checkpoints, and model artifacts.
 │
+├── AI_reports/
+│   └── Reports created by the AI ​​agent.
+│
 ├── src/
 │   ├── Preprocessing scripts.
 │   ├── Training pipeline.
@@ -204,5 +207,6 @@ pytest tests/
 ## **License**
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for more details.
+
 
 

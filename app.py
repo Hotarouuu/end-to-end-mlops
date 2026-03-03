@@ -1,8 +1,20 @@
+import yaml
 from fastapi import FastAPI
 from pydantic import BaseModel
 from src.farm_detection.models.predict import Predictor
 import logging
 import sys
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+config_path = os.getenv("CONFIG")
+
+def load_config(path):
+    with open(path, "r") as f:
+        return yaml.safe_load(f)
+
+config = load_config(config_path)
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -16,7 +28,8 @@ logging.basicConfig(
 logging.info("Loading the model and preprocessor for prediction")
 
 model = Predictor(
-    model_path="model/gaussiannb.joblib", preprocessor_path="model/preprocessor.joblib"
+    model_path=config["artifacts"]["model_path"],
+    preprocessor_path=config["artifacts"]["preprocessor_path"],
 )
 
 logging.info("Model and preprocessor loaded successfully")

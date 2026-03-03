@@ -24,4 +24,4 @@ api_test.py
 
 # Notebooks
 .ipynb_checkpoints/
-notebooks/*.ipynb
+notebooks/
