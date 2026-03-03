@@ -6,18 +6,12 @@ from pathlib import Path
 
 
 class Preprocessor:
-    def __init__(self, scaler_path=None, encoder_path=None):
-        self.scaler_path = scaler_path
-        self.encoder_path = encoder_path
-        
-        if scaler_path and Path(scaler_path).exists():
-            self.scaler = joblib.load(scaler_path)
+    def __init__(self, joblib_file=None):
+        if joblib_file:
+            self.scaler_path = joblib_file["scaler"]
+            self.encoder_path = joblib_file["labelencoder"]
         else:
             self.scaler = StandardScaler()
-            
-        if encoder_path and Path(encoder_path).exists():
-            self.label_encoder = joblib.load(encoder_path)
-        else:
             self.label_encoder = LabelEncoder()
 
     def log_transform(self, X):
