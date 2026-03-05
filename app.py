@@ -6,20 +6,23 @@ import logging
 import sys
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 config_path = os.getenv("CONFIG")
+
 
 def load_config(path):
     with open(path, "r") as f:
         return yaml.safe_load(f)
 
+
 config = load_config(config_path)
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
 
 
@@ -51,10 +54,12 @@ app = FastAPI()
 logging.info("FastAPI application started successfully")
 logging.info("Defining the /predict endpoint")
 
+
 @app.get("/")
 def read_root():
     logging.info("Received request at root endpoint")
     return {"message": "Welcome to the Farm Detection API!"}
+
 
 @app.post("/predict")
 def predict(data: User):

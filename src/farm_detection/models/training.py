@@ -6,15 +6,14 @@ from farm_detection.data.preprocess import Preprocessor
 import joblib
 import yaml
 import mlflow
-import logging  
+import logging
 import sys
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
-
 
 
 def load_config(path):

@@ -9,9 +9,7 @@ MOCK_CONFIG = {
         "features": ["N", "P", "K", "temperature", "ph", "humidity", "rainfall"],
         "target": "label",
     },
-    "model": {
-        "variables": {"priors": None, "var_smoothing": 1e-9}
-    },
+    "model": {"variables": {"priors": None, "var_smoothing": 1e-9}},
     "artifacts": {},  # filled per test via tmp_path
 }
 
@@ -36,7 +34,9 @@ def _config(tmp_path):
 
 
 def test_train_completes_without_error(tmp_path):
-    with patch("farm_detection.models.training.load_config", return_value=_config(tmp_path)):
+    with patch(
+        "farm_detection.models.training.load_config", return_value=_config(tmp_path)
+    ):
         train()  # should not raise
 
 
@@ -76,7 +76,9 @@ def test_train_saved_preprocessor_has_required_keys(tmp_path):
 
 
 def test_train_mlflow_run_is_started(tmp_path, mock_mlflow):
-    with patch("farm_detection.models.training.load_config", return_value=_config(tmp_path)):
+    with patch(
+        "farm_detection.models.training.load_config", return_value=_config(tmp_path)
+    ):
         train()
 
     mock_mlflow.start_run.assert_called_once()

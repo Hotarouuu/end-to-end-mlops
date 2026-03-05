@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import joblib
 
+
 class Preprocessor:
     def __init__(self, joblib_file=None):
         if joblib_file:
@@ -37,8 +38,10 @@ class Preprocessor:
         y_encoded = self.label_encoder.transform(y)
 
         if df:
-            df_return = pd.DataFrame(X_scaled, columns=self.scaler.get_feature_names_out())
-            df_return['label_encoded'] = y_encoded
+            df_return = pd.DataFrame(
+                X_scaled, columns=self.scaler.get_feature_names_out()
+            )
+            df_return["label_encoded"] = y_encoded
             return df_return
         else:
             return X_scaled, y_encoded

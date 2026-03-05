@@ -51,9 +51,7 @@ def test_fit_then_transform_matches_fit_transform(sample_df):
 
     p2 = Preprocessor()
     p2.fit(sample_df.drop("label", axis=1).copy(), sample_df["label"])
-    X_t, y_t = p2.transform(
-        sample_df.drop("label", axis=1).copy(), sample_df["label"]
-    )
+    X_t, y_t = p2.transform(sample_df.drop("label", axis=1).copy(), sample_df["label"])
 
     np.testing.assert_array_almost_equal(X_ft.values, X_t)
     np.testing.assert_array_equal(y_ft, y_t)
