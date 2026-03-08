@@ -1,11 +1,9 @@
-name: ci_pipe
+name: ci
 
-on:
+on:  
   push:
     branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-
+    
 jobs:
   black:
     name: Run black code formatter
@@ -46,7 +44,7 @@ jobs:
 
   build:
     name: Build containers
-    needs: [black, test] # Garante que o build só ocorra se o CI passar
+    needs: [black, test] # Ensures build only occurs if CI passes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -70,43 +68,8 @@ jobs:
           docker compose logs
 
       - name: Tear down
-        if: always() # Garante que os containers parem mesmo se o curl falhar
+        if: always() # Ensures containers stop even if curl fails
         run: docker compose down
-
-  deploy:
-    name: Deploy to EC2 
-    needs: [black, test, build] # Garante que o deploy só ocorra se o CI passar
-    runs-on: ubuntu-latest
-
-    steps:
-
-    - name: Checkout the files
-      uses: actions/checkout@v3
-
-    - name: Copy files to EC2
-      uses: easingthemes/ssh-deploy@main
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-        ARGS: "-rltgoDzvO --delete"
-        SOURCE: "./"
-        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-        REMOTE_USER: ${{ secrets.REMOTE_USER }}
-        TARGET: "/home/ubuntu/app"
-
-    - name: Run Docker Compose on EC2
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.REMOTE_HOST }}
-        username: ${{ secrets.REMOTE_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          cd /home/ubuntu/app
-          docker compose down
-          docker compose build api
-          docker compose build mlflow
-          docker compose up -d api
-          docker compose up -d mlflow
-
 
 
 

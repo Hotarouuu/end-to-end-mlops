@@ -1,0 +1,43 @@
+name: cd
+
+on:
+  workflow_run:
+    workflows: ["ci"]
+    types: [completed]
+    branches: ["master"]
+
+jobs:
+
+  deploy:
+    name: Deploy to EC2 
+    needs: [black, test, build] # Ensures deploy only occurs if CI passes
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout the files
+      uses: actions/checkout@v4
+
+    - name: Copy files to EC2
+      uses: easingthemes/ssh-deploy@main
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+        ARGS: "-rltgoDzvO --delete"
+        SOURCE: "./"
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        TARGET: "/home/ubuntu/app"
+
+    - name: Run Docker Compose on EC2
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd /home/ubuntu/app
+          docker compose down
+          docker compose build api
+          docker compose build mlflow
+          docker compose up -d api
+          docker compose up -d mlflow

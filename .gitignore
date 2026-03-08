@@ -13,9 +13,6 @@ wheels/
 mlruns/
 mlflow.db
 
-# Scripts
-api_test.py
-
 # Logs
 *.log
 
