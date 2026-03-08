@@ -1,10 +1,10 @@
 name: cd
 
 on:
-  workflow_run:
-    workflows: ["ci"]
-    types: [completed]
-    branches: ["master"]
+  pull_request:
+    branches: [ "master" ]
+  push:
+    branches: [ "master" ]
 
 jobs:
 
