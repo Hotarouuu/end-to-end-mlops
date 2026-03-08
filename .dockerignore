@@ -6,4 +6,5 @@
 AI_reports/
 __pycache__/
 .env
+mlflow.db
 
