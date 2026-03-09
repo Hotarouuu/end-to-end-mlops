@@ -4,9 +4,13 @@ WORKDIR /app
 
 RUN mkdir -p /app/logs
 
-ENV CONFIG=./config/model1.yaml
+# Project metadata first for caching
+COPY pyproject.toml setup.py /app/
+RUN uv pip install -e . --system
 
 COPY . /app
 
-# Use uv instead of pip for faster installations and improved dependency resolution.
-RUN uv pip install -e . --system
+ENV CONFIG=/app/config/model1.yaml
+ENV PYTHONPATH=/app
+
+CMD ["python", "-m", "pytest", "tests"]
