@@ -1,8 +1,7 @@
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, f1_score
 import pandas as pd
-from farm_detection.models.model import GNB
-from farm_detection.data.preprocess import Preprocessor
+from farm_detection.models.model import GNBWithEncoding
 import joblib
 import yaml
 import mlflow
@@ -29,12 +28,13 @@ def train():
 
     logging.info("Setting up MLflow tracking URI and experiment")
     remote_server_uri = "http://mlflow:5000"
+    #remote_server_uri = "http://localhost:5000" # -> Use this if running locally without Docker
     mlflow.set_tracking_uri(remote_server_uri)
     logging.info("Tracking URI set to {}".format(remote_server_uri))
 
     mlflow.set_experiment("Naive Bayes Experiment")
     logging.info("Experiment set to Naive Bayes Experiment")
-    mlflow.sklearn.autolog()
+    mlflow.sklearn.autolog(log_models=True, registered_model_name="farm-detection-gnb-model")
     with mlflow.start_run():
 
         logging.info("Loading data from {}".format(config["data"]["train_path"]))
@@ -43,22 +43,13 @@ def train():
 
         logging.info("Data loaded successfully. Shape: {}".format(df.shape))
 
-        processing = Preprocessor()
-
-        logging.info("Starting data preprocessing")
-
-        X_scaled, y_encoded = processing.fit_transform(
-            df[config["data"]["features"]], df[config["data"]["target"]]
-        )
-
-        logging.info("Data preprocessing completed successfully")
-
-        print(X_scaled)
-
         logging.info("Splitting data into training and testing sets")
 
+        X = df.drop(config["data"]["target"], axis=1)
+        y = df[config["data"]["target"]]
+
         train_X, test_X, train_y, test_y = train_test_split(
-            X_scaled, y_encoded, test_size=0.2, random_state=42
+            X, y, test_size=0.2, random_state=42
         )
 
         logging.info(
@@ -73,7 +64,7 @@ def train():
             )
         )
 
-        model = GNB(
+        model = GNBWithEncoding(
             priors=config["model"]["variables"]["priors"],
             var_smoothing=config["model"]["variables"]["var_smoothing"],
         )
@@ -85,37 +76,18 @@ def train():
         pred = model.predict(test_X)
         print(classification_report(test_y, pred, digits=4))
 
+        joblib.dump(model.label_encoder, config['artifacts']['label_encoder'])
+
+        mlflow.log_artifact(config['artifacts']['label_encoder'])
+
+
         logging.info(
             "Model training completed. Classification report:\n{}".format(
                 classification_report(test_y, pred, digits=4)
             )
         )
 
-        preprocessor = {
-            "scaler": processing.scaler,
-            "labelencoder": processing.label_encoder,
-        }
-
-        logging.info("Saving model and preprocessor to disk")
-
-        joblib.dump(preprocessor, config["artifacts"]["preprocessor_path"])
-        joblib.dump(model, config["artifacts"]["model_path"])
-
-        logging.info(
-            "Model and preprocessor saved successfully. Model path: {}, Preprocessor path: {}".format(
-                config["artifacts"]["model_path"],
-                config["artifacts"]["preprocessor_path"],
-            )
-        )
-
-        mlflow.log_artifact("config/model1.yaml")
-        mlflow.log_artifact(config["artifacts"]["preprocessor_path"])
-
-        logging.info(
-            "Artifacts logged to MLflow: config/model1.yaml and {}".format(
-                config["artifacts"]["preprocessor_path"]
-            )
-        )
+        logging.info("Model logged to MLflow with name 'farm-detection-gnb-model' and registered model name 'farm-detection-gnb-model'")
 
         print("Model saved.")
 

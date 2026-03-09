@@ -17,5 +17,7 @@ model:
     var_smoothing: 1.0e-09
 
 artifacts:
-  model_path: ./model/gaussiannb.joblib
-  preprocessor_path: ./model/preprocessor.joblib
+  model_name: "farm-detection-gnb-model"
+  model_script: "./src/farm_detection/models/model.py"
+  label_encoder: "./artifacts/gnb_model_label_encoder.joblib"
+  label_encoder_name: "gnb_model_label_encoder.joblib"
