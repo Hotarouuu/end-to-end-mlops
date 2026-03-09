@@ -1,10 +1,10 @@
-import pytest
+from unittest.mock import MagicMock, patch
+
 import joblib
+import pytest
 from sklearn.preprocessing import LabelEncoder
-from unittest.mock import patch, MagicMock
 
 from farm_detection.models.training import train
-
 
 MOCK_CONFIG = {
     "data": {
@@ -24,7 +24,13 @@ MOCK_CONFIG = {
 
 # Overrides the label_encoder path so nothing is written outside the test sandbox.
 def make_config(tmp_path):
-    return {**MOCK_CONFIG, "artifacts": {**MOCK_CONFIG["artifacts"], "label_encoder": str(tmp_path / "le.joblib")}}
+    return {
+        **MOCK_CONFIG,
+        "artifacts": {
+            **MOCK_CONFIG["artifacts"],
+            "label_encoder": str(tmp_path / "le.joblib"),
+        },
+    }
 
 
 @pytest.fixture(autouse=True)
@@ -38,7 +44,9 @@ def mock_mlflow():
 
 # Smoke test: train() should complete without raising any exception.
 def test_train_completes(tmp_path):
-    with patch("farm_detection.models.training.load_config", return_value=make_config(tmp_path)):
+    with patch(
+        "farm_detection.models.training.load_config", return_value=make_config(tmp_path)
+    ):
         train()
 
 
@@ -60,4 +68,3 @@ def test_train_mlflow_calls(tmp_path, mock_mlflow):
     mock_mlflow.set_experiment.assert_called_once_with("Naive Bayes Experiment")
     mock_mlflow.start_run.assert_called_once()
     mock_mlflow.log_artifact.assert_called_once_with(cfg["artifacts"]["label_encoder"])
-

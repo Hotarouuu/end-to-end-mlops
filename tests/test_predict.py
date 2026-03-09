@@ -1,11 +1,12 @@
-import pytest
 import pandas as pd
+import pytest
 
 from farm_detection.models.model import GNBWithEncoding
 
-
 SAMPLE_ROW = {
-    "N": 90, "P": 42, "K": 43,
+    "N": 90,
+    "P": 42,
+    "K": 43,
     "temperature": 20.87974371,
     "ph": 6.502985292,
     "humidity": 82.00274423,
@@ -25,11 +26,17 @@ def trained_model():
 
 # Verifies fit() runs without errors on minimal valid data.
 def test_fit_does_not_raise():
-    X = pd.DataFrame({
-        "N": [90, 85], "P": [42, 58], "K": [43, 41],
-        "temperature": [20.8, 21.7], "ph": [6.5, 5.9],
-        "humidity": [82.0, 80.3], "rainfall": [202.9, 234.2],
-    })
+    X = pd.DataFrame(
+        {
+            "N": [90, 85],
+            "P": [42, 58],
+            "K": [43, 41],
+            "temperature": [20.8, 21.7],
+            "ph": [6.5, 5.9],
+            "humidity": [82.0, 80.3],
+            "rainfall": [202.9, 234.2],
+        }
+    )
     y = pd.Series(["papaya", "papaya"])
     GNBWithEncoding().fit(X, y)
 
@@ -54,4 +61,3 @@ def test_predict_raises_on_missing_columns(trained_model):
     model, _ = trained_model
     with pytest.raises(Exception):
         model.predict(pd.DataFrame({"N": [90], "P": [42]}))
-

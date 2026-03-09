@@ -1,15 +1,16 @@
 import os
 import sys
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
-from sklearn.preprocessing import LabelEncoder
 from fastapi.testclient import TestClient
-
+from sklearn.preprocessing import LabelEncoder
 
 VALID_PAYLOAD = {
-    "N": 90, "P": 42, "K": 43,
+    "N": 90,
+    "P": 42,
+    "K": 43,
     "temperature": 20.87974371,
     "humidity": 82.00274423,
     "ph": 6.502985292,
@@ -17,10 +18,28 @@ VALID_PAYLOAD = {
 }
 
 CROP_NAMES = [
-    "apple", "banana", "blackgram", "chickpea", "coconut", "coffee",
-    "cotton", "grapes", "jute", "kidneybeans", "lentil", "maize",
-    "mango", "mothbeans", "mungbean", "muskmelon", "orange", "papaya",
-    "pigeonpeas", "pomegranate", "rice", "watermelon",
+    "apple",
+    "banana",
+    "blackgram",
+    "chickpea",
+    "coconut",
+    "coffee",
+    "cotton",
+    "grapes",
+    "jute",
+    "kidneybeans",
+    "lentil",
+    "maize",
+    "mango",
+    "mothbeans",
+    "mungbean",
+    "muskmelon",
+    "orange",
+    "papaya",
+    "pigeonpeas",
+    "pomegranate",
+    "rice",
+    "watermelon",
 ]
 
 
@@ -43,13 +62,16 @@ def api_client():
         patch("mlflow.set_tracking_uri"),
         patch("mlflow.tracking.MlflowClient") as MockClient,
         patch("mlflow.sklearn.load_model", return_value=fake_model),
-        patch("mlflow.artifacts.download_artifacts", return_value="/tmp/fake_le.joblib"),
+        patch(
+            "mlflow.artifacts.download_artifacts", return_value="/tmp/fake_le.joblib"
+        ),
         patch("joblib.load", return_value=le),
     ):
         MockClient.return_value.get_latest_versions.return_value = [fake_version]
         # Force a fresh import so module-level initialization runs inside the patches.
         sys.modules.pop("app", None)
         import app as app_module
+
         yield TestClient(app_module.app)
 
     sys.modules.pop("app", None)
@@ -79,5 +101,7 @@ def test_predict_missing_field_returns_422(api_client):
 
 # Confirms FastAPI returns 422 when a field has the wrong type.
 def test_predict_invalid_type_returns_422(api_client):
-    assert api_client.post("/predict", json={**VALID_PAYLOAD, "N": "bad"}).status_code == 422
-
+    assert (
+        api_client.post("/predict", json={**VALID_PAYLOAD, "N": "bad"}).status_code
+        == 422
+    )
