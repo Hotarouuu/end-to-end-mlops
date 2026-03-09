@@ -4,6 +4,8 @@ WORKDIR /app
 
 RUN mkdir -p /app/logs
 
+RUN mkdir -p /app/artifacts
+
 ENV CONFIG=./config/model1.yaml
 
 COPY . /app
