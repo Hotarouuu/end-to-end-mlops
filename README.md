@@ -159,6 +159,9 @@ The development lifecycle is divided into clear stages as follows:
 - All services are containerized using Docker for easy distribution.
 - Deployed in AWS EC2 using Github Actions
 
+> **Note:** If you want to deploy to AWS, first set the variables **EC2_SSH_KEY, REMOTE_HOST, REMOTE_USER** in the GitHub Actions Secrets before triggering the workflow. Otherwise it will fail.
+
+
 ---
 
 ## **Setup and Execution**
