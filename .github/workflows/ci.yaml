@@ -56,7 +56,7 @@ jobs:
         run: docker compose up -d --build
 
       - name: Wait for containers
-        run: sleep 15
+        run: sleep 30
 
       - name: Check if API is running
         run: curl -f http://localhost:8000/ || exit 1

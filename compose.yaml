@@ -4,8 +4,13 @@ services:
     build: .
     command: uvicorn app:app --host 0.0.0.0 --port 8000
     depends_on:
+
+      # API depends on MLFLOW and Trainer because Trainer logs the model to MLFlow, and the API needs to load the model from MLFlow to serve predictions.
+      
       mlflow:
         condition: service_started
+      trainer:
+        condition: service_completed_successfully
     ports:
       - "8000:8000"
 
