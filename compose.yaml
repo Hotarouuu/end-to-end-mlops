@@ -6,7 +6,7 @@ services:
     depends_on:
 
       # API depends on MLFLOW and Trainer because Trainer logs the model to MLFlow, and the API needs to load the model from MLFlow to serve predictions.
-      
+
       mlflow:
         condition: service_started
       trainer:
@@ -23,6 +23,14 @@ services:
 
     ports:
       - "5000:5000"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/ || exit 1"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
 
   trainer:
     build: .
