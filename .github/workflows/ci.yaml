@@ -26,6 +26,8 @@ jobs:
   test:
     name: Run all tests
     runs-on: ubuntu-latest
+    env:
+      CONFIG: ./config/model1.yaml
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
