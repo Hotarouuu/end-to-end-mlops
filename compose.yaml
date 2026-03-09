@@ -3,19 +3,32 @@ services:
   api:
     build: .
     command: uvicorn app:app --host 0.0.0.0 --port 8000
+    depends_on:
+      mlflow:
+        condition: service_healthy
+      trainer:
+        condition: service_completed_successfully
     ports:
       - "8000:8000"
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
 
   mlflow:
     build: .
-    command: mlflow server --host 0.0.0.0 --port 5000
-
+    command: mlflow server --artifacts-destination ./mlruns --host 0.0.0.0 --port 5000
     environment:
       - MLFLOW_SERVER_ALLOWED_HOSTS=*
-
     ports:
       - "5000:5000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   trainer:
     build: .
     command: python src/farm_detection/models/training.py
+    depends_on:
+      mlflow:
+        condition: service_healthy

@@ -1,23 +1,22 @@
+import joblib
+import pandas as pd
 import yaml
 from fastapi import FastAPI
 from pydantic import BaseModel
-from src.farm_detection.models.predict import Predictor
+from src.farm_detection.data.preprocess import Preprocessor
 import logging
 import sys
 import os
 from dotenv import load_dotenv
-
+import mlflow
+from mlflow.tracking import MlflowClient
 load_dotenv()
-
-config_path = os.getenv("CONFIG")
-
 
 def load_config(path):
     with open(path, "r") as f:
         return yaml.safe_load(f)
 
-
-config = load_config(config_path)
+config = load_config(os.getenv("CONFIG"))
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -25,15 +24,34 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)],
 )
 
-
 # Loading the model before the API to avoid loading it everytime the API is requested
 
 logging.info("Loading the model and preprocessor for prediction")
 
-model = Predictor(
-    model_path=config["artifacts"]["model_path"],
-    preprocessor_path=config["artifacts"]["preprocessor_path"],
+mlflow.set_tracking_uri('http://mlflow:5000')
+client = MlflowClient()
+model_name = config['artifacts']['model_name']
+
+latest_version_info = client.get_latest_versions(model_name, stages=["None"])
+run_id = latest_version_info[0].run_id
+latest_version = latest_version_info[0].version
+
+model_uri = f"models:/{model_name}/{latest_version}"
+
+# Why are we using label encoder and preprocessor separated if the Model Class already has them? 
+# For it's because the MLFlow's autologging doesn't log the preprocessor and label encoder as part of the model, so we need to load them separately 
+# to ensure that we have all the necessary components for making predictions in the API.
+
+model = mlflow.sklearn.load_model(model_uri)
+
+label_encoder_path = mlflow.artifacts.download_artifacts(
+    artifact_uri=f"runs:/{run_id}/{config['artifacts']['label_encoder_name']}"
 )
+
+preprocessor = Preprocessor()
+label_encoder = joblib.load(label_encoder_path)
+
+print(f"Success! Loaded version {latest_version} of '{model_name}'.")
 
 logging.info("Model and preprocessor loaded successfully")
 logging.info("Starting the FastAPI application")
@@ -65,8 +83,11 @@ def read_root():
 def predict(data: User):
     logging.info("Received prediction request with data: {}".format(data))
     input_data = [list(data.model_dump().values())]
+    input_df = pd.DataFrame([data.model_dump()]) 
     logging.info("Input data for prediction: {}".format(input_data))
-    prediction, label = model.predict(input_data)
+    input_df = preprocessor.log_transform(input_df)
+    prediction = model.predict(input_df)
+    label = label_encoder.inverse_transform(prediction)
     logging.info(
         "Prediction made successfully. Prediction: {}, Label: {}".format(
             prediction, label
