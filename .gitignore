@@ -22,3 +22,10 @@ mlflow.db
 # Notebooks
 .ipynb_checkpoints/
 notebooks/
+.notebooks/
+
+# Artifacts
+artifacts/
+
+# Env
+.env

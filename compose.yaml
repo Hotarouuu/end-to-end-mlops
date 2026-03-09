@@ -8,7 +8,7 @@ services:
 
   mlflow:
     build: .
-    command: mlflow server --host 0.0.0.0 --port 5000
+    command: mlflow server --artifacts-destination ./mlruns --host 0.0.0.0 --port 5000
 
     environment:
       - MLFLOW_SERVER_ALLOWED_HOSTS=*
@@ -19,3 +19,5 @@ services:
   trainer:
     build: .
     command: python src/farm_detection/models/training.py
+#    environment:
+#      - MLFLOW_TRACKING_URI=http://mlflow:5000

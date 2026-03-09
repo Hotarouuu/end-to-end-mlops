@@ -27,8 +27,8 @@ def train():
     # Enable autologging
 
     logging.info("Setting up MLflow tracking URI and experiment")
-    #remote_server_uri = "http://mlflow:5000"
-    remote_server_uri = "http://localhost:5000" # -> Use this if running locally without Docker
+    remote_server_uri = "http://mlflow:5000"
+    #remote_server_uri = "http://localhost:5000" # -> Use this if running locally without Docker
     mlflow.set_tracking_uri(remote_server_uri)
     logging.info("Tracking URI set to {}".format(remote_server_uri))
 
@@ -75,6 +75,11 @@ def train():
 
         pred = model.predict(test_X)
         print(classification_report(test_y, pred, digits=4))
+
+        joblib.dump(model.label_encoder, config['artifacts']['label_encoder'])
+
+        mlflow.log_artifact(config['artifacts']['label_encoder'])
+
 
         logging.info(
             "Model training completed. Classification report:\n{}".format(

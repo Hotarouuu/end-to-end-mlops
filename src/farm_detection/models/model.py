@@ -1,22 +1,17 @@
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-import numpy as np
+from farm_detection.data.preprocess import Preprocessor
 
 
-class GNBWithEncoding:
+class GNBWithEncoding(Preprocessor):
     def __init__(self, priors=None, var_smoothing=1e-9):
+        super().__init__()
         self.label_encoder = LabelEncoder()
         self.pipeline = Pipeline([
             ('scaler', StandardScaler()),
             ('gnb', GaussianNB(priors=priors, var_smoothing=var_smoothing))
         ])
-
-    def log_transform(self, X):
-        X["humidity_log"] = np.log(X["humidity"] + 1)
-        X["rainfall_log"] = np.log(X["rainfall"] + 1)
-        X.drop(["humidity", "rainfall"], axis=1, inplace=True)
-        return X
     
     def fit(self, X, y):
         X = self.log_transform(X)
