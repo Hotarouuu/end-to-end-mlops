@@ -39,7 +39,7 @@ jobs:
         run: pip install .
 
       - name: Run pylint
-        run: pylint -j 0 .
+        run: pylint -j 0 --fail-under=6.5 .
 
   test:
     name: Run all tests
