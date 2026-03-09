@@ -7,7 +7,6 @@ on:
     branches: [ "master" ]
 
 jobs:
-
   deploy:
     name: Deploy to EC2 
     runs-on: ubuntu-latest
@@ -33,10 +32,10 @@ jobs:
         host: ${{ secrets.REMOTE_HOST }}
         username: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
+        # We are building all of them because we are not sending a pre-trained model. It needs to be trained first, registered, and downloaded via the API to be served.
         script: |
           cd /home/ubuntu/app
           docker compose down
-          docker compose build api
-          docker compose build mlflow
-          docker compose up -d api
-          docker compose up -d mlflow
+          docker compose up
+
+          

@@ -1,20 +1,25 @@
+import logging
+import os
+import sys
+
 import joblib
+import mlflow
 import pandas as pd
 import yaml
-from fastapi import FastAPI
-from pydantic import BaseModel
-from src.farm_detection.data.preprocess import Preprocessor
-import logging
-import sys
-import os
 from dotenv import load_dotenv
-import mlflow
+from fastapi import FastAPI
 from mlflow.tracking import MlflowClient
+from pydantic import BaseModel
+
+from src.farm_detection.data.preprocess import Preprocessor
+
 load_dotenv()
+
 
 def load_config(path):
     with open(path, "r") as f:
         return yaml.safe_load(f)
+
 
 config = load_config(os.getenv("CONFIG"))
 
@@ -28,9 +33,9 @@ logging.basicConfig(
 
 logging.info("Loading the model and preprocessor for prediction")
 
-mlflow.set_tracking_uri('http://mlflow:5000')
+mlflow.set_tracking_uri("http://mlflow:5000")
 client = MlflowClient()
-model_name = config['artifacts']['model_name']
+model_name = config["artifacts"]["model_name"]
 
 latest_version_info = client.get_latest_versions(model_name, stages=["None"])
 run_id = latest_version_info[0].run_id
@@ -38,8 +43,8 @@ latest_version = latest_version_info[0].version
 
 model_uri = f"models:/{model_name}/{latest_version}"
 
-# Why are we using label encoder and preprocessor separated if the Model Class already has them? 
-# For it's because the MLFlow's autologging doesn't log the preprocessor and label encoder as part of the model, so we need to load them separately 
+# Why are we using label encoder and preprocessor separated if the Model Class already has them?
+# For it's because the MLFlow's autologging doesn't log the preprocessor and label encoder as part of the model, so we need to load them separately
 # to ensure that we have all the necessary components for making predictions in the API.
 
 model = mlflow.sklearn.load_model(model_uri)
@@ -75,15 +80,28 @@ logging.info("Defining the /predict endpoint")
 
 @app.get("/")
 def read_root():
+    """Root endpoint of the API.
+
+    Returns:
+        dict: A welcome message.
+    """    
     logging.info("Received request at root endpoint")
     return {"message": "Welcome to the Farm Detection API!"}
 
 
 @app.post("/predict")
 def predict(data: User):
+    """Predict endpoint of the API.
+
+    Args:
+        data (User): Input data for prediction.
+
+    Returns:
+        dict: Prediction result and corresponding label.
+    """    
     logging.info("Received prediction request with data: {}".format(data))
     input_data = [list(data.model_dump().values())]
-    input_df = pd.DataFrame([data.model_dump()]) 
+    input_df = pd.DataFrame([data.model_dump()])
     logging.info("Input data for prediction: {}".format(input_data))
     input_df = preprocessor.log_transform(input_df)
     prediction = model.predict(input_df)

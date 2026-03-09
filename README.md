@@ -84,7 +84,9 @@ Below is the general solution diagram that represents the system flow:
 ### Integration and CI/CD:
 - GitHub Actions  
 - Pytest 
-
+- Pylint
+- isort
+- Black
 ---
 
 ## **Project Structure**
@@ -159,6 +161,9 @@ The development lifecycle is divided into clear stages as follows:
 - All services are containerized using Docker for easy distribution.
 - Deployed in AWS EC2 using Github Actions
 
+> **Note:** If you want to deploy to AWS, first set the variables **EC2_SSH_KEY, REMOTE_HOST, REMOTE_USER** in the GitHub Actions Secrets before triggering the workflow. Otherwise it will fail.
+
+
 ---
 
 ## **Setup and Execution**
@@ -207,6 +212,7 @@ pytest tests/
 ## **License**
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for more details.
+
 
 
 
