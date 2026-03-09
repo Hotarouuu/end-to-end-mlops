@@ -54,6 +54,7 @@ After creating the report file, add a row to the table below.
 |---|---|---|
 | [2026-03-01_TESTING_REPORT.md](./2026-03-01_TESTING_REPORT.md) | 2026-03-01 | Created and improved tests (unit, API integration, training integration), fixed config bugs |
 | [2026-03-09_TEST_REFACTOR_REPORT.md](./2026-03-09_TEST_REFACTOR_REPORT.md) | 2026-03-09 | Refactored all tests to align with GNBWithEncoding refactor; removed Predictor, fixed MLflow module-level crash, updated training artifact contract |
+| [2026-03-09_TEST_SIMPLIFICATION_REPORT.md](./2026-03-09_TEST_SIMPLIFICATION_REPORT.md) | 2026-03-09 | Simplified test files (~50% fewer lines), added inline comments, created copilot-instructions.md |
 
 ---
 
