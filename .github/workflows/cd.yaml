@@ -10,7 +10,6 @@ jobs:
 
   deploy:
     name: Deploy to EC2 
-    needs: [black, test, build] # Ensures deploy only occurs if CI passes
     runs-on: ubuntu-latest
 
     steps:
