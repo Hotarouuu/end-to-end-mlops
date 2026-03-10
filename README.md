@@ -84,7 +84,9 @@ Below is the general solution diagram that represents the system flow:
 ### Integration and CI/CD:
 - GitHub Actions  
 - Pytest 
-
+- Pylint
+- isort
+- Black
 ---
 
 ## **Project Structure**
@@ -210,6 +212,7 @@ pytest tests/
 ## **License**
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for more details.
+
 
 
 
