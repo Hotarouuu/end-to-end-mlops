@@ -9,7 +9,7 @@ import yaml
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from mlflow.tracking import MlflowClient
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.farm_detection.data.preprocess import Preprocessor
 
@@ -61,15 +61,18 @@ print(f"Success! Loaded version {latest_version} of '{model_name}'.")
 logging.info("Model and preprocessor loaded successfully")
 logging.info("Starting the FastAPI application")
 
+# The range of variables is based on the min-max range of each variable in the training data.
+# This was selected because it represents the data the model saw during training.
+
 
 class User(BaseModel):
-    N: int
-    P: int
-    K: int
-    temperature: float
-    humidity: float
-    ph: float
-    rainfall: float
+    N: int = Field(ge=0, le=140)
+    P: int = Field(ge=5, le=145)
+    K: int = Field(ge=5, le=205)
+    temperature: float = Field(ge=8.8, le=43.6)
+    humidity: float = Field(ge=14.25, le=99.98)
+    ph: float = Field(ge=0.0, le=14.0)
+    rainfall: float = Field(ge=20.21, le=298.56)
 
 
 app = FastAPI()
@@ -84,7 +87,7 @@ def read_root():
 
     Returns:
         dict: A welcome message.
-    """    
+    """
     logging.info("Received request at root endpoint")
     return {"message": "Welcome to the Farm Detection API!"}
 
@@ -98,7 +101,7 @@ def predict(data: User):
 
     Returns:
         dict: Prediction result and corresponding label.
-    """    
+    """
     logging.info("Received prediction request with data: {}".format(data))
     input_data = [list(data.model_dump().values())]
     input_df = pd.DataFrame([data.model_dump()])

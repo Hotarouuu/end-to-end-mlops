@@ -1,0 +1,3 @@
+*.ipynb linguist-vendored
+uv.lock linguist-generated
+data/* linguist-vendored
