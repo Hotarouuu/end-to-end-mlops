@@ -61,8 +61,9 @@ print(f"Success! Loaded version {latest_version} of '{model_name}'.")
 logging.info("Model and preprocessor loaded successfully")
 logging.info("Starting the FastAPI application")
 
-# The range of variables is based on the min-max range of each variable in the training data. 
+# The range of variables is based on the min-max range of each variable in the training data.
 # This was selected because it represents the data the model saw during training.
+
 
 class User(BaseModel):
     N: int = Field(ge=0, le=140)
@@ -86,7 +87,7 @@ def read_root():
 
     Returns:
         dict: A welcome message.
-    """    
+    """
     logging.info("Received request at root endpoint")
     return {"message": "Welcome to the Farm Detection API!"}
 
@@ -100,7 +101,7 @@ def predict(data: User):
 
     Returns:
         dict: Prediction result and corresponding label.
-    """    
+    """
     logging.info("Received prediction request with data: {}".format(data))
     input_data = [list(data.model_dump().values())]
     input_df = pd.DataFrame([data.model_dump()])
