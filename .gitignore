@@ -21,8 +21,7 @@ mlflow.db
 
 # Notebooks
 .ipynb_checkpoints/
-notebooks/
-.notebooks/
+notebooks/graphs
 
 # Artifacts
 artifacts/
