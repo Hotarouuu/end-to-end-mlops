@@ -8,6 +8,7 @@ dependencies = [
     "fastapi>=0.128.5",
     "httpx>=0.28.1",
     "isort>=8.0.1",
+    "lightgbm>=4.6.0",
     "memray>=1.19.2",
     "mlflow>=3.9.0",
     "nbconvert>=7.17.1",
@@ -22,6 +23,7 @@ dependencies = [
     "seaborn>=0.13.2",
     "shap>=0.49.1",
     "uvicorn[standard]>=0.40.0",
+    "xgboost>=3.2.0",
 ]
 
 [project.scripts]
