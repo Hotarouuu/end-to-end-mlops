@@ -11,10 +11,14 @@ data:
   target: label
 
 model:
-  type: GaussianNB
+  type: XGBoost
   variables:
-    priors: null
-    var_smoothing: 1.0e-09
+    objective: "multi:softmax"
+    eval_metric: "logloss"
+    tree_method: "hist"
+    n_estimators: 100
+    verbosity: 0
+    random_state: 42
 
 artifacts:
   model_name: "farm-detection-gnb-model"
