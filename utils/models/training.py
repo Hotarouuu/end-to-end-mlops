@@ -39,10 +39,8 @@ def train():
     - Loads configuration from a YAML file
     - Sets up MLflow tracking and experiment
     - Loads training data from CSV
-    - Splits data into training and testing sets
-    - Trains a XGBWithEncoding model
+    - Trains a XGBoost model
     - Evaluates the model and logs results to MLflow
-    - Saves the label encoder artifact
 
     Returns:
         None
@@ -124,7 +122,7 @@ def train():
         )
 
         logging.info(
-            "Model logged to MLflow with name 'farm-detection-gnb-model'. Please check the MLflow UI for details."
+            "Model logged to MLflow with name 'farm-detection-xgb-model'. Please check the MLflow UI for details."
         )
 
         print("Model saved.")
