@@ -8,7 +8,7 @@ import yaml
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 
-from farm_detection.models.model import GNBWithEncoding
+from xgboost import XGBClassifier
 
 logging.basicConfig(
     level=logging.INFO,
@@ -33,14 +33,14 @@ def load_config(path):
 
 def train():
     """
-    Train a Gaussian Naive Bayes model for farm detection.
+    Train an XGBoost model for farm detection.
 
     This function:
     - Loads configuration from a YAML file
     - Sets up MLflow tracking and experiment
     - Loads training data from CSV
     - Splits data into training and testing sets
-    - Trains a GNBWithEncoding model
+    - Trains a XGBWithEncoding model
     - Evaluates the model and logs results to MLflow
     - Saves the label encoder artifact
 
@@ -57,10 +57,10 @@ def train():
     mlflow.set_tracking_uri(remote_server_uri)
     logging.info("Tracking URI set to {}".format(remote_server_uri))
 
-    mlflow.set_experiment("Naive Bayes Experiment")
-    logging.info("Experiment set to Naive Bayes Experiment")
-    mlflow.sklearn.autolog(
-        log_models=True, registered_model_name="farm-detection-gnb-model"
+    mlflow.set_experiment("Crop Recommendation Experiment")
+    logging.info("Experiment set to XGBoost Experiment")
+    mlflow.xgboost.autolog(
+        log_models=True
     )
     with mlflow.start_run():
 
@@ -70,51 +70,61 @@ def train():
 
         logging.info("Data loaded successfully. Shape: {}".format(df.shape))
 
-        logging.info("Splitting data into training and testing sets")
-
         X = df.drop(config["data"]["target"], axis=1)
-        y = df[config["data"]["target"]]
+        y = df[config["data"]["target"]].astype('category').cat.codes
 
-        train_X, test_X, train_y, test_y = train_test_split(
-            X, y, test_size=0.2, random_state=42
-        )
 
         logging.info(
             "Data split completed. Training set shape: {}, Testing set shape: {}".format(
-                train_X.shape, test_X.shape
+                X.shape, y.shape
             )
         )
         logging.info(
-            "Initializing the Naive Bayes model with priors: {} and var_smoothing: {}".format(
-                config["model"]["variables"]["priors"],
-                config["model"]["variables"]["var_smoothing"],
+            "Initializing the XGBoost model with parameters: {}".format(
+                config["model"]["variables"]
             )
         )
 
-        model = GNBWithEncoding(
-            priors=config["model"]["variables"]["priors"],
-            var_smoothing=config["model"]["variables"]["var_smoothing"],
+        model = XGBClassifier(
+            **config["model"]["variables"]
         )
 
         logging.info("Starting model training")
 
-        model.fit(train_X, train_y)
+        model.fit(X, y)
+        logging.info("Model training completed")
 
-        pred = model.predict(test_X)
-        print(classification_report(test_y, pred, digits=4))
+        cv = cross_val_score(model, X, y, cv=5, scoring='neg_log_loss') # Using cv to generate the metrics, since I'm using all the data to train
 
-        joblib.dump(model.label_encoder, config["artifacts"]["label_encoder"])
+        mlflow.log_metric("LogLoss", np.mean(-cv))
 
-        mlflow.log_artifact(config["artifacts"]["label_encoder"])
+        # Using SHAP for better feature importance interpretation
+
+        logging.info("Calcuating SHAP values for feature importance interpretation")
+
+        explainer = shap.TreeExplainer(model, X)
+        shap_values = explainer(X)
+
+        artifact_dir = os.path.abspath("artifacts")
+        os.makedirs(artifact_dir, exist_ok=True)
+        shap_summary_path = os.path.join(artifact_dir, "shap_summary.png")
+        shap.summary_plot(shap_values, X, plot_type="bar", plot_size=(20,15), class_names=decode_map, show=False)
+
+        plt.savefig(
+            shap_summary_path, dpi=300, bbox_inches="tight"
+        ) 
+        plt.close()
+
+        mlflow.log_artifact(shap_summary_path,  artifact_path="SHAP_FEATURE_IMPORTANCE")
+
+        logging.info('SHAP feature importance plot saved and logged to MLflow')
 
         logging.info(
-            "Model training completed. Classification report:\n{}".format(
-                classification_report(test_y, pred, digits=4)
-            )
+            "Model training completed. LogLoss: {}".format(np.mean(-cv))
         )
 
         logging.info(
-            "Model logged to MLflow with name 'farm-detection-gnb-model' and registered model name 'farm-detection-gnb-model'"
+            "Model logged to MLflow with name 'farm-detection-gnb-model'. Please check the MLflow UI for details."
         )
 
         print("Model saved.")
