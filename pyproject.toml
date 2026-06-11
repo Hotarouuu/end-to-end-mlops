@@ -21,18 +21,18 @@ dependencies = [
     "requests>=2.32.5",
     "scikit-learn>=1.4.2",
     "seaborn>=0.13.2",
-    "shap>=0.49.1",
     "uvicorn[standard]>=0.40.0",
     "xgboost>=3.2.0",
 ]
 
 [project.scripts]
-farm-detection = "farm_detection:main"
+farm-detection = "src:main"
 
 [build-system]
 requires = ["uv_build>=0.9.13,<0.10.0"]
 build-backend = "uv_build"
 
-[tool.uv_build]
-package-dir = {"" = "src"}
+[tool.uv.build-backend]
+module-name = "src"
+module-root = ""
 

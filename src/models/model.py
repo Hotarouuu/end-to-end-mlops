@@ -32,7 +32,7 @@ class XGBWithEncoding:
         Returns:
             XGBWithEncoding: Fitted model instance.
         """
-        y_encoded = y.astype('category').cat.codes
+        y_encoded = y.astype("category").cat.codes
         self.model.fit(X, y_encoded)
         return self
 
