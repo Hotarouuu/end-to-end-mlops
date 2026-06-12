@@ -28,7 +28,7 @@ services:
 
   trainer:
     build: .
-    command: python src/farm_detection/models/training.py
+    command: python src/models/training.py
     depends_on:
       mlflow:
         condition: service_healthy
