@@ -6,8 +6,8 @@ services:
     depends_on:
       mlflow:
         condition: service_healthy
-      trainer:
-        condition: service_completed_successfully
+    #  trainer:
+    #    condition: service_completed_successfully
     ports:
       - "8000:8000"
     environment:

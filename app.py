@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from time import time
 
 import joblib
 import mlflow
@@ -11,8 +12,7 @@ from fastapi import FastAPI
 from mlflow.tracking import MlflowClient
 from pydantic import BaseModel, Field
 
-from src.farm_detection.data.preprocess import Preprocessor
-
+logging.Formatter.converter = time.localtime
 load_dotenv()
 
 
@@ -31,34 +31,30 @@ logging.basicConfig(
 
 # Loading the model before the API to avoid loading it everytime the API is requested
 
-logging.info("Loading the model and preprocessor for prediction")
+logging.info("Loading the model for prediction")
 
 mlflow.set_tracking_uri("http://mlflow:5000")
+
 client = MlflowClient()
 model_name = config["artifacts"]["model_name"]
 
-latest_version_info = client.get_latest_versions(model_name, stages=["None"])
+latest_version_info = client.get_latest_versions(model_name, stages=["Production"])
 run_id = latest_version_info[0].run_id
 latest_version = latest_version_info[0].version
 
 model_uri = f"models:/{model_name}/{latest_version}"
 
-# Why are we using label encoder and preprocessor separated if the Model Class already has them?
-# For it's because the MLFlow's autologging doesn't log the preprocessor and label encoder as part of the model, so we need to load them separately
-# to ensure that we have all the necessary components for making predictions in the API.
+model = mlflow.xgboost.load_model(model_uri)
 
-model = mlflow.sklearn.load_model(model_uri)
+logging.info(f"Loaded version {latest_version} of '{model_name}'.")
+logging.info("Model loaded successfully")
+logging.info("Generating decode map...")
 
-label_encoder_path = mlflow.artifacts.download_artifacts(
-    artifact_uri=f"runs:/{run_id}/{config['artifacts']['label_encoder_name']}"
+decode_map_path = mlflow.artifacts.download_artifacts(
+    artifact_uri=f"runs:/{run_id}/{config['artifacts']['decode_path']}"
 )
-
-preprocessor = Preprocessor()
-label_encoder = joblib.load(label_encoder_path)
-
-print(f"Success! Loaded version {latest_version} of '{model_name}'.")
-
-logging.info("Model and preprocessor loaded successfully")
+decode_map = joblib.load(decode_map_path)
+print(decode_map)
 logging.info("Starting the FastAPI application")
 
 # The range of variables is based on the min-max range of each variable in the training data.
@@ -106,13 +102,12 @@ def predict(data: User):
     input_data = [list(data.model_dump().values())]
     input_df = pd.DataFrame([data.model_dump()])
     logging.info("Input data for prediction: {}".format(input_data))
-    input_df = preprocessor.log_transform(input_df)
     prediction = model.predict(input_df)
-    label = label_encoder.inverse_transform(prediction)
+    label = decode_map[prediction[0]]
     logging.info(
         "Prediction made successfully. Prediction: {}, Label: {}".format(
             prediction, label
         )
     )
 
-    return {"prediction": int(prediction[0]), "label": str(label[0])}
+    return {"prediction": int(prediction[0]), "label": str(label)}

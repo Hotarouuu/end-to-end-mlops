@@ -21,5 +21,6 @@ model:
     random_state: 42
 
 artifacts:
-  model_name: "farm-detection-gnb-model"
-  model_script: "./src/farm_detection/models/model.py"
+  model_name: "XGBOOST"
+  model_script: "./src/models/model.py"
+  decode_path: "/DECODE_MAP/decode_map.pkl"
