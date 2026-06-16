@@ -53,8 +53,8 @@ def train():
     # Setting up MLflow tracking URI and experiment
 
     logging.info("Setting up MLflow tracking URI and experiment")
-    #remote_server_uri = "http://mlflow:5000"
-    remote_server_uri = "http://localhost:5000" # -> Use this if running locally without Docker
+    remote_server_uri = "http://mlflow:5000"
+    # remote_server_uri = "http://localhost:5000" # -> Use this if running locally without Docker
     mlflow.set_tracking_uri(remote_server_uri)
     logging.info("Tracking URI set to {}".format(remote_server_uri))
 
@@ -106,7 +106,9 @@ def train():
         logging.info("Calculating SHAP values for feature importance interpretation")
 
         explainer = shap.TreeExplainer(model, X)
-        shap_values = explainer(X) # using explainer here isn't the most effective way to calculate the SHAP values, but since we only have 2200 samples it's ok
+        shap_values = explainer(
+            X
+        )  # using explainer here isn't the most effective way to calculate the SHAP values, but since we only have 2200 samples it's ok
 
         artifact_dir = os.path.abspath("artifacts")
         os.makedirs(artifact_dir, exist_ok=True)
@@ -126,8 +128,9 @@ def train():
         joblib.dump(decode_map, os.path.join(artifact_dir, "decode_map.pkl"))
 
         mlflow.log_artifact(shap_summary_path, artifact_path="SHAP_FEATURE_IMPORTANCE")
-        mlflow.log_artifact(os.path.join(artifact_dir, "decode_map.pkl"), artifact_path="DECODE_MAP")
-
+        mlflow.log_artifact(
+            os.path.join(artifact_dir, "decode_map.pkl"), artifact_path="DECODE_MAP"
+        )
 
         logging.info("SHAP feature importance plot saved and logged to MLflow")
         logging.info("Decode map saved and logged to MLflow")
