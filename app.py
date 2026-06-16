@@ -28,8 +28,7 @@ def load_config(path):
         return yaml.safe_load(f)
 
 
-# config = load_config(os.getenv("CONFIG"))
-config = load_config("/home/lucas/Documents/Git/mlops-project/config/model1.yaml")
+config = load_config(os.getenv("CONFIG"))
 
 
 logging.basicConfig(
@@ -46,7 +45,7 @@ async def lifespan(
     app: FastAPI,
 ):  # We are using lifespan here to load the model before taking requests and not when the code is loading. It's good for the tests as well
     global model, decode_map
-    model, decode_map = import_model(config, is_local=True)
+    model, decode_map = import_model(config, is_local=False)
     yield
 
 
