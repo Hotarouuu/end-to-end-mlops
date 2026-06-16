@@ -53,8 +53,8 @@ def train():
     # Setting up MLflow tracking URI and experiment
 
     logging.info("Setting up MLflow tracking URI and experiment")
-    remote_server_uri = "http://mlflow:5000"
-    # remote_server_uri = "http://localhost:5000" # -> Use this if running locally without Docker
+    #remote_server_uri = "http://mlflow:5000"
+    remote_server_uri = "http://localhost:5000" # -> Use this if running locally without Docker
     mlflow.set_tracking_uri(remote_server_uri)
     logging.info("Tracking URI set to {}".format(remote_server_uri))
 

@@ -12,7 +12,9 @@ from fastapi import FastAPI
 from mlflow.tracking import MlflowClient
 from pydantic import BaseModel, Field
 
-logging.Formatter.converter = time.localtime
+from src.models.model import import_model
+
+#logging.Formatter.converter = time.localtime
 load_dotenv()
 
 
@@ -21,7 +23,9 @@ def load_config(path):
         return yaml.safe_load(f)
 
 
-config = load_config(os.getenv("CONFIG"))
+#config = load_config(os.getenv("CONFIG"))
+config = load_config("/home/lucas/Documents/Git/mlops-project/config/model1.yaml")
+
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -31,30 +35,8 @@ logging.basicConfig(
 
 # Loading the model before the API to avoid loading it everytime the API is requested
 
-logging.info("Loading the model for prediction")
+model, decode_map = import_model(config, is_local=True)
 
-mlflow.set_tracking_uri("http://mlflow:5000")
-
-client = MlflowClient()
-model_name = config["artifacts"]["model_name"]
-
-latest_version_info = client.get_latest_versions(model_name, stages=["Production"])
-run_id = latest_version_info[0].run_id
-latest_version = latest_version_info[0].version
-
-model_uri = f"models:/{model_name}/{latest_version}"
-
-model = mlflow.xgboost.load_model(model_uri)
-
-logging.info(f"Loaded version {latest_version} of '{model_name}'.")
-logging.info("Model loaded successfully")
-logging.info("Generating decode map...")
-
-decode_map_path = mlflow.artifacts.download_artifacts(
-    artifact_uri=f"runs:/{run_id}/{config['artifacts']['decode_path']}"
-)
-decode_map = joblib.load(decode_map_path)
-print(decode_map)
 logging.info("Starting the FastAPI application")
 
 # The range of variables is based on the min-max range of each variable in the training data.
