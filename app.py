@@ -11,10 +11,12 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from mlflow.tracking import MlflowClient
 from pydantic import BaseModel, Field
+from contextlib import asynccontextmanager
+
 
 from src.models.model import import_model
 
-#logging.Formatter.converter = time.localtime
+# logging.Formatter.converter = time.localtime
 load_dotenv()
 
 
@@ -23,7 +25,7 @@ def load_config(path):
         return yaml.safe_load(f)
 
 
-#config = load_config(os.getenv("CONFIG"))
+# config = load_config(os.getenv("CONFIG"))
 config = load_config("/home/lucas/Documents/Git/mlops-project/config/model1.yaml")
 
 
@@ -35,7 +37,15 @@ logging.basicConfig(
 
 # Loading the model before the API to avoid loading it everytime the API is requested
 
-model, decode_map = import_model(config, is_local=True)
+
+@asynccontextmanager
+async def lifespan(
+    app: FastAPI,
+):  # We are using lifespan here to load the model before taking requests and not when the code is loading. It's good for the tests as well
+    global model, decode_map
+    model, decode_map = import_model(config, is_local=True)
+    yield
+
 
 logging.info("Starting the FastAPI application")
 
@@ -53,7 +63,7 @@ class User(BaseModel):
     rainfall: float = Field(ge=20.21, le=298.56)
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 logging.info("FastAPI application started successfully")
 logging.info("Defining the /predict endpoint")
