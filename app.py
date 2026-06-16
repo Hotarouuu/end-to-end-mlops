@@ -16,6 +16,9 @@ from contextlib import asynccontextmanager
 
 from src.models.model import import_model
 
+model = None
+decode_map = None
+
 # logging.Formatter.converter = time.localtime
 load_dotenv()
 

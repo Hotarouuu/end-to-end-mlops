@@ -43,8 +43,9 @@ def mock_mlflow_session():
         patch("mlflow.xgboost.load_model") as mock_load_model,
         patch("mlflow.artifacts.download_artifacts"),
         patch("mlflow.tracking.MlflowClient") as mock_client,
-    ):  # , \
-        # patch('app.import_model') as mock_import:
+        patch("app.model") as mock_model,
+        patch("app.decode_map") as mock_decode,
+    ):
 
         # Mock do client.get_latest_versions
         mock_version_info = MagicMock()
@@ -59,17 +60,18 @@ def mock_mlflow_session():
 
         # Mock do download_artifacts
         mock_decode_path = "/tmp/mock_decode_map.pkl"
-        mock_decode_map = {0: "apple", 1: "banana"}
-        joblib.dump(mock_decode_map, mock_decode_path)
+        mock_decode = {0: "apple", 1: "banana"}
+        joblib.dump(mock_decode, mock_decode_path)
         mock_artifacts = MagicMock()
         mock_artifacts.download_artifacts.return_value = mock_decode_path
 
-        # Mock do Import_model
-        # mock_import.return_value = (MagicMock(), {0: "apple", 1: "banana"})
+        # Mock do load_model
+        mock_model = MagicMock()
+        mock_model.predict.return_value = np.array([0])
 
         yield {
             "model": mock_model,
-            "decode_map": mock_decode_map,
+            "decode_map": mock_decode,
             "client": mock_client,
         }
 
