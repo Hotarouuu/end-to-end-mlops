@@ -13,6 +13,7 @@ import joblib
 import mlflow
 import numpy as np
 import pytest
+import xgboost
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -21,42 +22,44 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 @pytest.fixture(scope="session", autouse=True)
 def mock_mlflow_session():
-    """Mock do MLflow para toda a sessão de testes."""
+    """Pytest fixture that mocks MLflow and model components for testing.
+
+    This fixture sets up mock objects for MLflow tracking, model loading,
+    artifact downloading, and the MlflowClient. It patches relevant modules
+    to allow tests to run without actual MLflow interactions.
+
+    Yields:
+        dict: A dictionary containing:
+            - 'model': Mock XGBClassifier instance
+            - 'decode_map': Mock decode map dictionary
+    """
+    mock_model_obj = MagicMock()
+    mock_model_obj.__class__ = xgboost.sklearn.XGBClassifier
+    mock_model_obj.predict.return_value = np.array([0])
+
+    mock_version_info = MagicMock()
+    mock_version_info.run_id = "test-run-id"
+    mock_version_info.version = "1"
+
+    mock_decode_path = "/tmp/mock_decode_map.pkl"
+    mock_decode = {0: "apple", 1: "banana"}
+    joblib.dump(mock_decode, mock_decode_path)
+
     with (
         patch("mlflow.set_tracking_uri"),
-        patch("mlflow.xgboost.load_model") as mock_load_model,
-        patch("mlflow.artifacts.download_artifacts"),
-        patch("mlflow.tracking.MlflowClient") as mock_client,
-        patch("app.model") as mock_model,
+        patch("mlflow.xgboost.load_model", return_value=mock_model_obj),
+        patch("mlflow.artifacts.download_artifacts", return_value=mock_decode_path),
+        patch("src.models.model.MlflowClient") as mock_client_class,
+        patch("app.model") as mock_model_obj,
         patch("app.decode_map") as mock_decode,
     ):
-
-        # client.get_latest_versions mock
-        mock_version_info = MagicMock()
-        mock_version_info.run_id = "test-run-id"
-        mock_version_info.version = "1"
-        mock_client.return_value.get_latest_versions.return_value = [mock_version_info]
-
-        # load_model mock (redundant ?)
-        mock_model = MagicMock()
-        mock_load_model.return_value = mock_model
-        mock_load_model.predict.return_value = np.array([0])
-
-        # artifacts.download_artifacts mock
-        mock_decode_path = "/tmp/mock_decode_map.pkl"
-        mock_decode = {0: "apple", 1: "banana"}
-        joblib.dump(mock_decode, mock_decode_path)
-        mock_artifacts = MagicMock()
-        mock_artifacts.download_artifacts.return_value = mock_decode_path
-
-        # model and decode_map mocks
-        mock_model = MagicMock()
-        mock_model.predict.return_value = np.array([0])
+        mock_client_class.return_value.get_latest_versions.return_value = [
+            mock_version_info
+        ]
 
         yield {
-            "model": mock_model,
+            "model": mock_model_obj,
             "decode_map": mock_decode,
-            "client": mock_client,
         }
 
 
