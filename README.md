@@ -1,4 +1,4 @@
-# **End-to-End MLOps Project - Crop Prediction**
+# **End-to-End MLOps Project - Crop Prediction** (WIP REFACTOR)
 
 ---
 
@@ -10,8 +10,9 @@
 4. [Project Structure](#project-structure)  
 5. [Development Pipeline](#development-pipeline)  
 6. [Setup and Execution](#setup-and-execution)  
-7. [Testing](#testing)  
-8. [License](#license)
+7. [Testing](#testing)
+8. [Comments](#comments)
+9. [License](#license)
 
 ---
 
@@ -24,8 +25,6 @@ The emphasis of this project is on **MLOps best practices**, such as the automat
 ### **Goals:**
 - Build a fully automated pipeline covering data processing, model training, and deployment.  
 - Deploy a RESTful API to make model predictions available in a containerized environment on AWS.
-
-> **Note:** The dataset is intentionally simple. The focus of this project is not model performance or complex data, but the design of a robust and well structured architecture that follows best practices across the entire machine learning lifecycle.
 
 ---
 
@@ -43,7 +42,7 @@ The project architecture is modular to ensure scalability and maintainability. T
    
 5. **Model Training and Experiment Tracking:**  
 
-   Training the model using the Pycaret benchmark as a base, with the experiments being tracked using MLFlow.
+   Training the model using the XGBoost with the experiments being tracked using MLFlow.
    
 7. **Model Deployment:**  
 
@@ -67,9 +66,12 @@ Below is the general solution diagram that represents the system flow:
 ## **Technologies Used**
 
 ### Core Libraries:
-- Scikit-Learn 
-- PyCaret 
-- MLFlow 
+- XGBoost
+- SHAP
+- Seaborn
+- Matplotlib
+- MLFlow
+  
 ### Backend and Deployment:
 - FastAPI  
 - Uvicorn 
@@ -94,7 +96,7 @@ Below is the general solution diagram that represents the system flow:
 The project is organized as follows:
 
 ```
-end-to-end-mlops/
+end-to-end-mlops/ (WIP)
 │
 ├── notebooks/
 │   └── Data exploration and experimentation notebooks.
@@ -105,15 +107,9 @@ end-to-end-mlops/
 ├── config/
 │   └── Configuration files for the pipeline (e.g., YAML, JSON).
 │
-├── model/
-│   └── Trained models, saved checkpoints, and model artifacts.
-│
-├── AI_reports/
-│   └── Reports created by the AI ​​agent.
-│
 ├── src/
-│   ├── Preprocessing scripts.
-│   ├── Training pipeline.
+│   ├── models/
+│      ├── WIP
 │
 ├── tests/
 │   └── Unit and integration test scripts.
@@ -207,7 +203,17 @@ pytest tests/
 ```
 
 ---
+## **Comments**
 
+As you can see, I'm updating this project from time to time and making it even better every commit! 
+
+It's my "main" portfolio project, so I'm upgrading it at the same pace as my knowledge improves. My goal is for it to serve as a reference for those who want to learn more about Machine Learning Engineering.
+
+As my main portfolio project, and because it's supposed to simulate a full production ML project, I won't (probably) accept pull requests. It's not an open-source project; it's a portfolio and reference project.
+
+Enjoy my work. Feel free to fork it!
+
+---
 
 ## **License**
 
