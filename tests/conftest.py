@@ -7,20 +7,16 @@ requiring an editable install.
 
 import os
 import sys
-
-import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-# Creating fixture for session scope of the mlflow
-
 from unittest.mock import MagicMock, patch
 
 import joblib
 import mlflow
 import numpy as np
 import pytest
-from dotenv import load_dotenv
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+# Creating fixture for session scope of the mlflow
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -35,25 +31,25 @@ def mock_mlflow_session():
         patch("app.decode_map") as mock_decode,
     ):
 
-        # Mock do client.get_latest_versions
+        # client.get_latest_versions mock
         mock_version_info = MagicMock()
         mock_version_info.run_id = "test-run-id"
         mock_version_info.version = "1"
         mock_client.return_value.get_latest_versions.return_value = [mock_version_info]
 
-        # Mock do load_model
+        # load_model mock (redundant ?)
         mock_model = MagicMock()
         mock_load_model.return_value = mock_model
         mock_load_model.predict.return_value = np.array([0])
 
-        # Mock do download_artifacts
+        # artifacts.download_artifacts mock
         mock_decode_path = "/tmp/mock_decode_map.pkl"
         mock_decode = {0: "apple", 1: "banana"}
         joblib.dump(mock_decode, mock_decode_path)
         mock_artifacts = MagicMock()
         mock_artifacts.download_artifacts.return_value = mock_decode_path
 
-        # Mock do load_model
+        # model and decode_map mocks
         mock_model = MagicMock()
         mock_model.predict.return_value = np.array([0])
 

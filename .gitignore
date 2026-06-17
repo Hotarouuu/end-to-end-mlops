@@ -12,6 +12,7 @@ wheels/
 # MLFlow
 mlruns/
 mlflow.db
+mlartifacts/
 
 # Logs
 *.log
