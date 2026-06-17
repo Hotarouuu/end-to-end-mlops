@@ -1,10 +1,11 @@
 import os
 
-from src.models.model import import_model
-from dotenv import load_dotenv
-import yaml
 import xgboost
+import yaml
+from dotenv import load_dotenv
+
 from src.models.helpers import load_config
+from src.models.model import import_model
 
 load_dotenv()
 
