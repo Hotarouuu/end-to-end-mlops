@@ -13,6 +13,14 @@ config = load_config(os.getenv("CONFIG"))
 
 
 def test_import_model():
+    """Test that import_model returns a valid XGBClassifier model and decode map.
+
+    Verifies that:
+    - The model is not None
+    - The decode_map is not None
+    - The model is an instance of XGBClassifier
+    - The decode_map is a dictionary
+    """
     model, decode_map = import_model(config)
 
     assert model is not None

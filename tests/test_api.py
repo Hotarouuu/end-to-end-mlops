@@ -16,14 +16,14 @@ client = TestClient(app)
 
 
 def test_api_return_valid_response():
-
+    """Test that the root endpoint returns a 200 status code and welcome message."""
     response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {"message": "Welcome to the Farm Detection API!"}
 
 
 def test_api_prediction():  # Be aware that we are testing the PREDICT ENDPOINT and NOT the model itself
-
+    """Test that the predict endpoint returns a valid prediction with valid payload."""
     response = client.post("/predict", json=VALID_PAYLOAD)
     body = response.json()
     print(body)
