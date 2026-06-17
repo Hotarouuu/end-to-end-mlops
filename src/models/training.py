@@ -60,7 +60,9 @@ def train():
 
     mlflow.set_experiment("Crop Recommendation Experiment")
     logging.info("Experiment set to XGBoost Experiment")
-    mlflow.xgboost.autolog(log_models=True, log_datasets=True)
+    mlflow.xgboost.autolog(
+        log_models=True, log_datasets=True, registered_model_name="XGBOOST"
+    )
     with mlflow.start_run():
 
         logging.info("Loading data from {}".format(config["data"]["train_path"]))
