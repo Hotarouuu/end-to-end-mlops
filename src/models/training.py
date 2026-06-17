@@ -11,26 +11,13 @@ import shap
 import yaml
 from sklearn.model_selection import cross_val_score
 from xgboost import XGBClassifier
+from src.models.helpers import load_config
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)],
 )
-
-
-def load_config(path):
-    """
-    Load configuration from a YAML file.
-
-    Args:
-        path (str): Path to the YAML configuration file.
-
-    Returns:
-        dict: Configuration dictionary loaded from the YAML file.
-    """
-    with open(path, "r") as f:
-        return yaml.safe_load(f)
 
 
 def train():
@@ -59,9 +46,7 @@ def train():
 
     mlflow.set_experiment("Crop Recommendation Experiment")
     logging.info("Experiment set to XGBoost Experiment")
-    mlflow.xgboost.autolog(
-        log_models=True, log_datasets=True, registered_model_name="XGBOOST"
-    )
+    mlflow.xgboost.autolog(log_models=True, log_datasets=True)
     with mlflow.start_run():
 
         logging.info("Loading data from {}".format(config["data"]["train_path"]))
@@ -143,6 +128,19 @@ def train():
         )
 
         print("Model saved.")
+
+
+def model_eval():
+
+    # Setting up MLflow tracking URI and experiment
+    logging.info("Starting model evaluation")
+    logging.info("Setting up MLflow tracking URI")
+    remote_server_uri = "http://mlflow:5000"
+    # remote_server_uri = "http://localhost:5000" # -> Use this if running locally without Docker
+    mlflow.set_tracking_uri(remote_server_uri)
+    logging.info("Tracking URI set to {}".format(remote_server_uri))
+
+    mlflow.get
 
 
 if __name__ == "__main__":

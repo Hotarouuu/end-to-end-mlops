@@ -30,3 +30,6 @@ artifacts/
 
 # Env
 .env
+
+# AI Stuff
+.agents/
