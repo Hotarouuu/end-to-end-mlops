@@ -17,22 +17,8 @@ import pytest
 from unittest.mock import patch, MagicMock
 import mlflow
 import joblib
-import pandas as pd
-import xgboost as xgb
-import yaml
 from dotenv import load_dotenv
 import numpy as np
-
-load_dotenv()
-
-
-def load_config(path):
-    with open(path, "r") as f:
-        return yaml.safe_load(f)
-
-
-# config = load_config(os.getenv("CONFIG"))
-config = load_config("/home/lucas/Documents/Git/mlops-project/config/model1.yaml")
 
 
 @pytest.fixture(scope="session", autouse=True)
