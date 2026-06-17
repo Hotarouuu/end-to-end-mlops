@@ -7,18 +7,20 @@ requiring an editable install.
 
 import os
 import sys
+
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # Creating fixture for session scope of the mlflow
 
-import pytest
-from unittest.mock import patch, MagicMock
-import mlflow
+from unittest.mock import MagicMock, patch
+
 import joblib
-from dotenv import load_dotenv
+import mlflow
 import numpy as np
+import pytest
+from dotenv import load_dotenv
 
 
 @pytest.fixture(scope="session", autouse=True)

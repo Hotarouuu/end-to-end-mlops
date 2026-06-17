@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from contextlib import asynccontextmanager
 from time import time
 
 import joblib
@@ -11,8 +12,6 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from mlflow.tracking import MlflowClient
 from pydantic import BaseModel, Field
-from contextlib import asynccontextmanager
-
 
 from src.models.model import import_model
 

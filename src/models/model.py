@@ -1,20 +1,23 @@
 import logging
 
+import joblib
 import mlflow
 from mlflow.tracking import MlflowClient
-import joblib
 
 
 def import_model(config, is_local=False):
-    """Função para importar o modelo do MLflow.
+    """Load a trained model and its decode map from MLflow.
 
-    Esta função é chamada no momento da importação do módulo, garantindo que
-    o modelo seja carregado apenas uma vez e esteja disponível para todas as
-    requisições da API sem necessidade de recarregamento.
+    Args:
+        config (dict): Configuration dictionary containing artifacts settings.
+        is_local (bool, optional): Whether running locally without Docker. Defaults to False.
+
+    Returns:
+        tuple: A tuple containing the loaded model and the decode map.
     """
     logging.info("Loading the model for prediction")
 
-    if is_local: # If running locally without Docker, set the tracking URI to localhost
+    if is_local:  # If running locally without Docker, set the tracking URI to localhost
         mlflow.set_tracking_uri("http://localhost:5000")
     else:
         mlflow.set_tracking_uri("http://mlflow:5000")

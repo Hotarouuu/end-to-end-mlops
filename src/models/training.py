@@ -1,16 +1,15 @@
 import logging
+import os
 import sys
 
 import joblib
+import matplotlib.pyplot as plt
 import mlflow
+import numpy as np
 import pandas as pd
+import shap
 import yaml
 from sklearn.model_selection import cross_val_score
-import numpy as np
-import shap
-import os
-import matplotlib.pyplot as plt
-
 from xgboost import XGBClassifier
 
 logging.basicConfig(
