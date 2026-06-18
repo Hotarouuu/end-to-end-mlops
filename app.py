@@ -14,18 +14,13 @@ from mlflow.tracking import MlflowClient
 from pydantic import BaseModel, Field
 
 from src.models.model import import_model
+from src.models.helpers import load_config
 
 model = None
 decode_map = None
 
 # logging.Formatter.converter = time.localtime
 load_dotenv()
-
-
-def load_config(path):
-    with open(path, "r") as f:
-        return yaml.safe_load(f)
-
 
 config = load_config(os.getenv("CONFIG"))
 
