@@ -47,8 +47,13 @@ def train():
 
     mlflow.set_experiment("Crop Recommendation Experiment")
     logging.info("Experiment set to XGBoost Experiment")
-    mlflow.xgboost.autolog(log_models=True, log_datasets=True)
-    with mlflow.start_run():
+    model_name = "XGBOOST"
+    mlflow.xgboost.autolog(
+        log_models=True, log_datasets=True, registered_model_name=model_name
+    )
+    with mlflow.start_run() as run:
+
+        run_id = run.info.run_id
 
         logging.info("Loading data from {}".format(config["data"]["train_path"]))
 
@@ -82,11 +87,11 @@ def train():
         logging.info("Model training completed")
 
         mlflow.xgboost.autolog(disable=True)
-        cv = cross_val_score(
+        metric = cross_val_score(
             model, X, y, cv=5, scoring="neg_log_loss"
         )  # Using cv to generate the metrics, since I'm using all the data to train
 
-        mlflow.log_metric("LogLoss", np.mean(-cv))
+        mlflow.log_metric("LogLoss", np.mean(-metric))
 
         # Using SHAP for better feature importance interpretation
 
@@ -122,27 +127,91 @@ def train():
         logging.info("SHAP feature importance plot saved and logged to MLflow")
         logging.info("Decode map saved and logged to MLflow")
 
-        logging.info("Model training completed. LogLoss: {}".format(np.mean(-cv)))
+        logging.info("Model training completed. LogLoss: {}".format(np.mean(-metric)))
 
         logging.info(
             "Model logged to MLflow with name 'farm-detection-xgb-model'. Please check the MLflow UI for details."
         )
 
-        print("Model saved.")
+        logging.info("Model saved.")
+
+        return metric, model_name, run_id
 
 
-def model_eval():
+def promote_model_if_better(model_name, metric_name, benchmark, client, run_id):
+    """Promote a model version to Production if it meets or exceeds the benchmark metric.
 
-    # Setting up MLflow tracking URI and experiment
-    logging.info("Starting model evaluation")
-    logging.info("Setting up MLflow tracking URI")
-    remote_server_uri = "http://mlflow:5000"
-    # remote_server_uri = "http://localhost:5000" # -> Use this if running locally without Docker
-    mlflow.set_tracking_uri(remote_server_uri)
-    logging.info("Tracking URI set to {}".format(remote_server_uri))
+    This function:
+    - Retrieves the current metric value from the specified run
+    - Checks if a Production version exists for the model
+    - If no Production version exists and the metric passes the benchmark, promotes the model
+    - If a Production version exists, compares metrics and promotes the new version if it's better
 
-    mlflow.get
+    Args:
+        model_name (str): Name of the MLflow model to promote
+        metric_name (str): Name of the metric to evaluate (e.g., 'LogLoss')
+        benchmark (float): Threshold value that the metric must meet or exceed
+        client (mlflow.MlflowClient): MLflow client instance for model registry operations
+        run_id (str): MLflow run ID containing the model metrics
+
+    Returns:
+        None
+    """
+
+    # Search for run metrics
+    run = client.get_run(run_id)
+    metrics = run.data.metrics
+    current_metric = metrics.get(metric_name)
+
+    if current_metric is None:
+        logging.info(f"Metric '{metric_name}' not found in the run")
+        return
+
+    # Check if there is a production version of the model
+    prod_versions = client.get_latest_versions(model_name, stages=["Production"])
+
+    if not prod_versions:
+        # No production version exists, check if it passes benchmark
+        latest_version = client.get_latest_versions(model_name)[0]
+        logging.info(f"Current Metric: {current_metric} (benchmark: {benchmark})")
+
+        if current_metric > benchmark:  # menor MSE = melhor
+            logging.info(f"It didn't pass the benchmark. No promotion.")
+            return
+        else:
+            client.transition_model_version_stage(
+                name=model_name, version=latest_version.version, stage="Production"
+            )
+            logging.info(
+                f"Version {latest_version.version} was promoted to Production (first time)"
+            )
+    else:
+        # There is a production version, compare metrics
+        prod_version = prod_versions[0]
+        prod_run = client.get_run(prod_version.run_id)
+        prod_metric = prod_run.data.metrics.get(metric_name)
+
+        if current_metric < prod_metric:
+            client.transition_model_version_stage(
+                name=model_name, version=prod_version.version, stage="Archived"
+            )
+            latest_version = client.get_latest_versions(model_name, stages=["None"])[0]
+            client.transition_model_version_stage(
+                name=model_name, version=latest_version.version, stage="Production"
+            )
+            logging.info(
+                f"Version {latest_version.version} substituted {prod_version.version} in Production"
+            )
+        else:
+            logging.info(f"Didn't improve (prod: {prod_metric}, new: {current_metric})")
 
 
 if __name__ == "__main__":
-    train()
+
+    client = mlflow.MlflowClient()
+    metric, model_name, run_id = train()
+
+    # Auto-promote model if it passes benchmark
+    benchmark = 0.33  # LogLoss threshold
+
+    promote_model_if_better(model_name, "LogLoss", benchmark, client, run_id)
