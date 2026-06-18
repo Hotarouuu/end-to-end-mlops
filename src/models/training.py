@@ -175,7 +175,7 @@ def promote_model_if_better(model_name, metric_name, benchmark, client, run_id):
         latest_version = client.get_latest_versions(model_name)[0]
         logging.info(f"Current Metric: {current_metric} (benchmark: {benchmark})")
 
-        if current_metric > benchmark:  # menor MSE = melhor
+        if current_metric >= benchmark:  # menor MSE = melhor
             logging.info(f"It didn't pass the benchmark. No promotion.")
             return
         else:
