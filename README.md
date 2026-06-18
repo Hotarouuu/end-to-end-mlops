@@ -34,7 +34,7 @@ The project architecture is modular to ensure scalability and maintainability. T
 
 1. **Data Exploration and Processing:**   
 
-   Initial exploration of soil datasets, data cleaning, and preprocessing.
+   Full data exploration to understand the patterns of the dataset.
    
 3. **Feature Engineering:**  
 
@@ -137,8 +137,10 @@ end-to-end-mlops/ (WIP)
 The development lifecycle is divided into clear stages as follows:
 
 ### **1. Data Exploration and Preprocessing**
-- Exploration: The raw soil dataset is analyzed and explored.
-- Preprocessing: Features are normalized (e.g., Z-score normalization), and categorical variables are encoded using LabelEncoder.
+
+Please check how the data exploration was made in this notebook hosted in Kaggle:
+
+https://www.kaggle.com/code/lucasmoraes001/crop-recommendation-detailed-eda
 
 ### **2. Feature Engineering**
 - Numerical characteristics are standardized and categorical are processed.
