@@ -13,8 +13,8 @@ from fastapi import FastAPI
 from mlflow.tracking import MlflowClient
 from pydantic import BaseModel, Field
 
-from src.models.model import import_model
 from src.models.helpers import load_config
+from src.models.model import import_model
 
 model = None
 decode_map = None
