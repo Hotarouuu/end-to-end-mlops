@@ -494,7 +494,7 @@ requires-dist = [
     { name = "scikit-learn", specifier = ">=1.4.2" },
     { name = "seaborn", specifier = ">=0.13.2" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.40.0" },
-    { name = "xgboost", specifier = ">=3.2.0" },
+    { name = "xgboost", specifier = "==3.2.0" },
 ]
 
 [[package]]

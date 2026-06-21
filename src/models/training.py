@@ -208,7 +208,9 @@ def promote_model_if_better(model_name, metric_name, benchmark, client, run_id):
 
 if __name__ == "__main__":
 
-    client = mlflow.MlflowClient()
+    client = mlflow.MlflowClient(
+        tracking_uri="http://mlflow:5000"
+    )  # Use this if running with Docker
     metric, model_name, run_id = train()
 
     # Auto-promote model if it passes benchmark
