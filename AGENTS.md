@@ -25,28 +25,30 @@ docker compose up api    # or mlflow, trainer
 
 ## Architecture
 
-- **Crop prediction API** (FastAPI) — `app.py` loads model from MLFlow registry at startup
-- **Training pipeline** — `src/models/training.py` trains XGBoost, logs to MLFlow, saves decode map
+- **Crop prediction API** (FastAPI) — `app.py` loads model from MLFlow registry at startup via lifespan context manager
+- **Model loader** — `src/models/model.py` handles model import from MLFlow registry
+- **Helpers** — `src/models/helpers.py` contains config loading utilities
+- **Training pipeline** — `src/models/training.py` trains XGBoost, logs to MLFlow, saves decode map, auto-promotes to Production
 - **MLFlow server** — experiment tracking + model registry at port 5000
 - **API serves predictions** at port 8000 (`POST /predict`)
 
 ## Critical Gotchas
 
-1. **API requires trained model in MLFlow Production stage** — `app.py` calls `client.get_latest_versions(model_name, stages=["Production"])` at import time. Will crash if no model registered.
+1. **API requires trained model in MLFlow Production stage** — `src/models/model.py` calls `client.get_latest_versions(model_name, stages=["Production"])` during FastAPI lifespan startup. Will crash if no model registered.
 
 2. **Training must run before API** — `compose.yaml` has trainer commented out in api depends_on. Train first, then start API.
 
 3. **SHAP installed from GitHub** — PyPI version incompatible with XGBoost 3.2.0. Dockerfile does: `uv pip install git+https://github.com/shap/shap.git --system`
 
-4. **Python version mismatch** — `pyproject.toml` requires `>=3.12,<3.13` but CI workflows use `3.11`. Known bug.
+4. **CONFIG env var** — `app.py` reads `os.getenv("CONFIG")` (default `./config/model1.yaml`).
 
-5. **Entry point broken** — `pyproject.toml` defines `farm-detection = "src:main"` but `src/__init__.py` is empty. Do not use `farm-detection` CLI command.
+5. **Integration tests empty** — `tests/test_integration.py` exists but is empty. Unit tests exist in `test_unit_api.py` and `test_unit_model.py`.
 
-6. **CONFIG env var** — `app.py` reads `os.getenv("CONFIG")` (default `./config/model1.yaml`). `training.py` hardcodes `./config/model1.yaml` — ignores env var.
+6. **numpy < 2.0.0** pinned in dependencies — compatibility constraint.
 
-7. **tests/ directory empty** — CI runs `pytest` but no tests exist. CI passes because pytest exits 5 (no tests collected).
+7. **xgboost==3.2.0** pinned exactly (not >=) in pyproject.toml — compatibility constraint.
 
-8. **numpy < 2.0.0** pinned in dependencies — compatibility constraint.
+8. **Model auto-promotion** — `training.py` has `promote_model_if_better()` function that promotes model to Production if LogLoss < 0.33 benchmark threshold.
 
 ## CI/CD
 
@@ -59,10 +61,16 @@ docker compose up api    # or mlflow, trainer
 | File | Purpose |
 |------|---------|
 | `app.py` | FastAPI app, loads model from MLFlow at startup |
+| `src/models/model.py` | Model import from MLFlow registry |
+| `src/models/helpers.py` | Config loading utilities |
 | `src/models/training.py` | Training pipeline, MLflow logging, SHAP analysis |
 | `config/model1.yaml` | Model config, data paths, artifact names |
 | `compose.yaml` | 3 services: api, mlflow, trainer |
 | `data/Crop_recommendation.csv` | Training dataset |
+| `tests/conftest.py` | Pytest fixtures, MLflow mocking |
+| `tests/test_unit_api.py` | API endpoint unit tests |
+| `tests/test_unit_model.py` | Model import unit tests |
+| `tests/test_integration.py` | Integration tests (empty) |
 
 ## Config Structure (`config/model1.yaml`)
 

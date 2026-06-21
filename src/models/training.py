@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 
+from dotenv import load_dotenv
 import joblib
 import matplotlib.pyplot as plt
 import mlflow
@@ -13,6 +14,8 @@ from sklearn.model_selection import cross_val_score
 from xgboost import XGBClassifier
 
 from src.models.helpers import load_config
+
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -35,7 +38,7 @@ def train():
     Returns:
         None
     """
-    config = load_config("./config/model1.yaml")
+    config = load_config(os.getenv("CONFIG"))
 
     # Setting up MLflow tracking URI and experiment
 
