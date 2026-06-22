@@ -96,7 +96,7 @@ Below is the general solution diagram that represents the system flow:
 The project is organized as follows:
 
 ```
-end-to-end-mlops/ (WIP)
+end-to-end-mlops/
 │
 ├── notebooks/
 │   └── Data exploration and experimentation notebooks.
@@ -149,8 +149,8 @@ https://www.kaggle.com/code/lucasmoraes001/crop-recommendation-detailed-eda
 - Numerical characteristics are standardized and categorical are processed.
 
 ### **3. Model Training and Validation**
-- PyCaret is used to rapidly benchmark models and evaluate performance metrics.
-- Training the best model using the Pycaret benchmark as a base.
+- Training four different types of algorithms and evaluating them to select the best based on LogLoss, F1, Precision, and Recall
+- Training the best-performing model (in our case is XGBOOST)
 
 ### **4. Experiment Tracking**
 - MLFlow Autologging is enabled to log all hyperparameters, training results, and performance metrics for every experiment.  
@@ -170,7 +170,7 @@ https://www.kaggle.com/code/lucasmoraes001/crop-recommendation-detailed-eda
 ## **Setup and Execution**
 
 ### Prerequisites:
-- **Python 3.8+**
+- **Python 3.12.+**
 - **Docker and Docker-Compose**
 
 ### Installation Steps:
