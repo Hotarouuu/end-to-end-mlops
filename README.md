@@ -108,8 +108,8 @@ end-to-end-mlops/ (WIP)
 │   └── Configuration files for the pipeline (e.g., YAML, JSON).
 │
 ├── src/
-│   ├── models/
-│      ├── WIP
+│   └── models/
+│      └──  Scripts for training the model
 │
 ├── tests/
 │   └── Unit and integration test scripts.
@@ -120,6 +120,9 @@ end-to-end-mlops/ (WIP)
 ├── compose.yaml
 │   └── Docker Compose file that orchestrates services (API, training, MLFlow).
 │
+├── AGENTS.md
+|   └── Markdown file to instruct how the AI Agent should work
+|
 ├── app.py
 │   └── FastAPI script serving trained models as a REST API.
 │
@@ -184,7 +187,8 @@ https://www.kaggle.com/code/lucasmoraes001/crop-recommendation-detailed-eda
    ```
 
 3. Access the API documentation:
-   Visit [http://localhost:8000/docs](http://localhost:8000/docs) where you can test the endpoints.
+
+   Visit [http://localhost:8000/docs](http://localhost:8000/docs) where you can test the endpoints locally.
 
 ---
 
@@ -195,7 +199,7 @@ Automated testing ensures the pipeline functions reliably. The following testing
 1. **Unit Tests:**  
    Validate individual components like preprocessing, feature engineering, and model inference functions.  
 
-2. **Integration Tests:**  
+2. **Integration Tests (WIP):**  
    Verify the interaction between multiple modules, including end-to-end pipeline workflows.
 
 ### Run Tests:
