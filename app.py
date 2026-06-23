@@ -6,7 +6,7 @@ from time import time
 
 import joblib
 import mlflow
-from mlflow import shap
+import shap
 import pandas as pd
 import yaml
 from dotenv import load_dotenv
@@ -48,16 +48,28 @@ logging.info("Starting the FastAPI application")
 
 # The range of variables is based on the min-max range of each variable in the training data.
 # This was selected because it represents the data the model saw during training.
+# The default values are the statistical representation of the class RICE
 
 
 class User(BaseModel):
-    N: int = Field(ge=0, le=140)
-    P: int = Field(ge=5, le=145)
-    K: int = Field(ge=5, le=205)
-    temperature: float = Field(ge=8.8, le=43.6)
-    humidity: float = Field(ge=14.25, le=99.98)
-    ph: float = Field(ge=0.0, le=14.0)
-    rainfall: float = Field(ge=20.21, le=298.56)
+    N: int = Field(ge=0, le=140, default=80.0, json_schema_extra={"example": 80.0})
+    P: int = Field(ge=5, le=145, default=47.0, json_schema_extra={"example": 47.0})
+    K: int = Field(ge=5, le=205, default=40.0, json_schema_extra={"example": 40.0})
+    temperature: float = Field(
+        ge=8.8, le=43.6, default=23.689332, json_schema_extra={"example": 23.689332}
+    )
+    humidity: float = Field(
+        ge=14.25, le=99.98, default=82.272822, json_schema_extra={"example": 82.272822}
+    )
+    ph: float = Field(
+        ge=0.0, le=14.0, default=6.425471, json_schema_extra={"example": 6.425471}
+    )
+    rainfall: float = Field(
+        ge=20.21,
+        le=298.56,
+        default=233.119859,
+        json_schema_extra={"example": 233.119859},
+    )
 
 
 app = FastAPI(lifespan=lifespan)
@@ -102,19 +114,19 @@ def predict(data: User):
     return {"prediction": int(prediction[0]), "label": str(label)}
 
 
-@app.post("/shap_explanation")
-def shap_explanation(data: User):
-    """SHAP explanation endpoint of the API.
+# @app.post("/shap_explanation")
+# def shap_explanation(data: User):
+#    """SHAP explanation endpoint of the API.
 
-    Args:
-        data (User): Input data for SHAP explanation.
+#    Args:
+#        data (User): Input data for SHAP explanation.
 
-    Returns:
-        dict: SHAP values for the input data.
-    """
-    logging.info("Received SHAP explanation request with data: {}".format(data))
-    input_df = pd.DataFrame([data.model_dump()])
-    explainer = shap.TreeExplainer(model, input_df)
-    shap_values = explainer(input_df)
-    logging.info("SHAP values calculated successfully")
-    return {"shap_values": shap_values.values.tolist()}
+#    Returns:
+#        dict: SHAP values for the input data.
+#    """
+#    logging.info("Received SHAP explanation request with data: {}".format(data))
+#    X = pd.DataFrame([data.model_dump()])
+#    explainer = shap.TreeExplainer(model, X)
+#    shap_values = explainer(X)
+#    logging.info("SHAP values calculated successfully")
+#    return {"shap_values": shap_values.values.tolist()}
