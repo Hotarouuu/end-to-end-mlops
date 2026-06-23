@@ -25,7 +25,7 @@ The previous tests were generated with vibecoding and were poorly reviewed. With
     - **Unit Model:** The model script was refactored. Now only the import_model function from MLFlow is tested. The purpose is to train the LOGIC, not the model itself
     - **Unit API:** The logic of the 2 endpoints in the API is tested. With the MLFlow mock, they can be tested without a live server
 
-- Integration tests:
+- Integration test:
     - **Full Dockerized test:** Instead of testing only the training, the full service including all three containers is tested. This solution is better since the project heavily depends on MLFlow
 
 # 3. More advanced and secure API
@@ -43,14 +43,14 @@ The current API is basic, with only two endpoints, no authentication and no erro
 
 Implementation of error handling is crucial for the project, combining with better logging.
 
-# 5. Example UI
+# 5. UI
 
 Simple UI Vibe-coded or with streamlit library to use the project properly
 
 - Input and Prediction: Basic functionality with inputting the data and the model prediction
 - Model interpretability:
     - **Return SHAP values:** For advanced users, the shap values for the input are generated, with the possibility of generating graphs to understand how the model produced the prediction
-    - **Gemini recommendation:** For basic users and for advanced users as well, Gemini integration is provided for natural language interpretation of the model and possible courses of action given the prediction.
+    - **Gemini recommendation:** For both basic and advanced users, Gemini integration is provided for natural language interpretation of the model and possible courses of action given the prediction.
 
 
 
