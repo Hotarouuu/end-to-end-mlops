@@ -6,6 +6,7 @@ from time import time
 
 import joblib
 import mlflow
+from mlflow import shap
 import pandas as pd
 import yaml
 from dotenv import load_dotenv
@@ -99,3 +100,21 @@ def predict(data: User):
     )
 
     return {"prediction": int(prediction[0]), "label": str(label)}
+
+
+@app.post("/shap_explanation")
+def shap_explanation(data: User):
+    """SHAP explanation endpoint of the API.
+
+    Args:
+        data (User): Input data for SHAP explanation.
+
+    Returns:
+        dict: SHAP values for the input data.
+    """
+    logging.info("Received SHAP explanation request with data: {}".format(data))
+    input_df = pd.DataFrame([data.model_dump()])
+    explainer = shap.TreeExplainer(model, input_df)
+    shap_values = explainer(input_df)
+    logging.info("SHAP values calculated successfully")
+    return {"shap_values": shap_values.values.tolist()}
